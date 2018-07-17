@@ -16,6 +16,7 @@ int main(void)
 	GPIO_init();
 	MX_USART1_UART_Init();
 	Init_FIFO();
+	USART1_Printf("BOOT1 start!\r\n");
 	while(1)
 	{
 		if(Uart1.over == true)

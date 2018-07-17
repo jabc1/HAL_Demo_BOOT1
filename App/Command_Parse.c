@@ -50,11 +50,11 @@ void Receive_function()
 					USART1_Printf("Rcmd=%s,%d\r\n",Cmd_Analysis.data,Cmd_Analysis.datalen);
 					//unpack(0x0a,0x00,Cmd_Analysis.data,Cmd_Analysis.datalen);
 				}
-				if(Cmd_Analysis.cmd == 0xb0)//APP升级包信息crc,len擦除app程序
+				if(Cmd_Analysis.cmd == 0xa3)//APP升级包信息crc,len擦除app程序
 				{
 					update_parameter(Cmd_Analysis.data,Cmd_Analysis.datalen);
 				}				
-				if(Cmd_Analysis.cmd == 0xb1)//APP升级包内容
+				if(Cmd_Analysis.cmd == 0xa5)//APP升级包内容
 				{
 					update_function(Cmd_Analysis.data,Cmd_Analysis.datalen);
 				}
@@ -75,14 +75,14 @@ void Transport_function()
 		if (fifo_get_frame(&TransmitFIFO,&Data.Buff[0], &Len))
         {
 			#if 1
-			DW_485_Send();        //设置为发送模式
-			for(i=0;i<Len;i++)               //循环发送数据
+			DW_485_Send();
+			for(i=0;i<Len;i++)
 			{
-				while((USART1->SR&0X40)==0);  //等待发送结束             
+				while((USART1->SR&0X40)==0);         
 				USART1->DR=Data.Buff[i];
 			}    
-			while((USART1->SR&0X40)==0);     //等待发送结束    
-			DW_485_Receive();        //设置为接收模式 
+			while((USART1->SR&0X40)==0); 
+			DW_485_Receive();
 			#else
 //			for(i=0;i<Len;i++)
 //			{
@@ -127,9 +127,9 @@ bool Analysis(u32 *add,u8 *cmd,u8 *Data,u32 *DataLen,u8 *Content,u32 ContentLen)
 		return false;
 	}	
 	
-	memcpy(Data,&(pPack->CmdData), pPack->DataLength - DATALEN_FIX_LENGTH);//拷贝内容带出
+	memcpy(Data,&(pPack->CmdData), pPack->DataLength - DATALEN_FIX_LENGTH);//拷贝内容并带出
 	*DataLen = pPack->DataLength - DATALEN_FIX_LENGTH;//带出内容长度
-	*cmd = pPack->CmdCode;//带出命令
+	*cmd = pPack->CmdCode;//带出命令类型 
     *add = pPack->DesAddr;//带出地址
 	
 	return true;

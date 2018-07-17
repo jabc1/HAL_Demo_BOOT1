@@ -99,13 +99,25 @@ void STMFLASH_Write ( uint32_t WriteAddr, uint16_t * pBuffer, uint16_t NumToWrit
 		if(NumToWrite==secremain)break;//写入结束了
 		else//写入未结束
 		{
+#ifndef BIN_960            
 			secpos++;				//扇区地址增1
 			secoff=0;				//偏移位置为0 	 
-			pBuffer+=secremain;  	//指针偏移
+		    pBuffer+=secremain;  	//指针偏移
+            secremain *= 2;
+			WriteAddr+=secremain;	//写地址偏移
+            secremain /= 2;            
+		   	NumToWrite-=secremain;	//字节(16位)数递减
+			if(NumToWrite>(STM_SECTOR_SIZE/2))secremain=STM_SECTOR_SIZE/2;//下一个扇区还是写不完
+			else secremain=NumToWrite;//下一个扇区可以写完了
+#else
+            secpos++;				//扇区地址增1
+			secoff=0;				//偏移位置为0 	 
+		    pBuffer+=secremain;  	//指针偏移
 			WriteAddr+=secremain;	//写地址偏移	   
 		   	NumToWrite-=secremain;	//字节(16位)数递减
 			if(NumToWrite>(STM_SECTOR_SIZE/2))secremain=STM_SECTOR_SIZE/2;//下一个扇区还是写不完
 			else secremain=NumToWrite;//下一个扇区可以写完了
+#endif   
 		}	 
 	};	
 	HAL_FLASH_Lock();//上锁
